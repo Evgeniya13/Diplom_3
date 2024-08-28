@@ -4,93 +4,91 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
-import org.openqa.selenium.WebDriver;
 import pageobject.*;
 
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4ClassRunner.class)
-public class LoginTest {
-    private final static String URL = "https://stellarburgers.nomoreparties.site/";
-    private WebDriver driver;
-    private final static String EMAIL = "test123@ex.com";
+public class LoginTest extends BaseTest{
+    private final static String USER_NAME = "TestUser";
+    private final static String EMAIL = "TestUser" + Math.random() + "@example.com";
     private final static String PASSWORD = "123456";
-    HeaderPage headerpage;
+    private static String accessToken = "";
+    HeaderPage headerPage;
     LoginPage loginPage;
-    ConstructorPage constrpage;
-    RegistrationPage regpage;
-    ResetPasswordPage resetpasspage;
+    ConstructorPage constructorPage;
+    RegistrationPage registrationPage;
+    ResetPasswordPage resetPasswordPage;
     AccountPage accountPage;
 
+
     @Before
-    public void setWebDriver() {
-        driver = UserRegistrationTest.createDriver("chrome");
-        headerpage = new HeaderPage(driver);
+    public void testPreparation() {
+        accessToken = createUser(EMAIL, PASSWORD, USER_NAME);
+        headerPage = new HeaderPage(driver);
         loginPage = new LoginPage(driver);
-        constrpage = new ConstructorPage(driver);
-        regpage = new RegistrationPage(driver);
-        resetpasspage = new ResetPasswordPage(driver);
+        constructorPage = new ConstructorPage(driver);
+        registrationPage = new RegistrationPage(driver);
+        resetPasswordPage = new ResetPasswordPage(driver);
         accountPage = new AccountPage(driver);
-        driver.manage().window().maximize();
-        driver.get(URL);
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
     }
 
     @Test
     @DisplayName("Вход по кнопке «Войти в аккаунт» на главной")
     public void loginViaMainPage() {
-        constrpage.clickLoginButton();
+        constructorPage.clickLoginButton();
         loginPage.checkTitle();
         loginPage.loginUser(EMAIL, PASSWORD);
-        constrpage.checkCreateOrderButton();
+        constructorPage.checkCreateOrderButton();
     }
 
     @Test
     @DisplayName("Вход через кнопку «Личный кабинет»")
     public void loginViaAccountPage() {
-        headerpage.clickAccountLink();
+        headerPage.clickAccountLink();
         loginPage.checkTitle();
         loginPage.loginUser(EMAIL, PASSWORD);
-        constrpage.checkCreateOrderButton();
+        constructorPage.checkCreateOrderButton();
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме регистрации")
     public void loginViaRegistrationPage() {
-        constrpage.clickLoginButton();
+        constructorPage.clickLoginButton();
         loginPage.clickRegisterLink();
-        regpage.checkTitle();
-        regpage.clickLoginLink();
+        registrationPage.checkTitle();
+        registrationPage.clickLoginLink();
         loginPage.checkTitle();
         loginPage.loginUser(EMAIL, PASSWORD);
-        constrpage.checkCreateOrderButton();
+        constructorPage.checkCreateOrderButton();
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме восстановления пароля")
     public void loginViaResetPasswordPage() {
-        headerpage.clickAccountLink();
+        headerPage.clickAccountLink();
         loginPage.clickResetPasswordLink();
-        resetpasspage.checkTitle();
-        resetpasspage.clickLoginLink();
+        resetPasswordPage.checkTitle();
+        resetPasswordPage.clickLoginLink();
         loginPage.checkTitle();
         loginPage.loginUser(EMAIL, PASSWORD);
-        constrpage.checkCreateOrderButton();
+        constructorPage.checkCreateOrderButton();
     }
 
     @Test
     @DisplayName("Выход по кнопке «Выйти» в личном кабинете")
     public void logOutViaAccount() {
-        constrpage.clickLoginButton();
+        constructorPage.clickLoginButton();
         loginPage.loginUser(EMAIL, PASSWORD);
-        headerpage.clickAccountLink();
+        headerPage.clickAccountLink();
         accountPage.clickLogOutButton();
         loginPage.checkTitle();
     }
 
     @After
-    public void teardown() {
-        driver.quit();
+    public void clear() {
+        deleteUser(accessToken);
+        accessToken = "";
     }
 }
 

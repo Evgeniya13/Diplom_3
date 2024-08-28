@@ -14,64 +14,42 @@ import pageobject.RegistrationPage;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4ClassRunner.class)
-
-public class UserRegistrationTest {
-    private final static String URL = "https://stellarburgers.nomoreparties.site/register";
-    private WebDriver driver;
+public class UserRegistrationTest extends BaseTest{
     private final static String USER_NAME = "TestUser";
     private final static String EMAIL = "TestUser" + Math.random() + "@example.com";
     private final static String PASSWORD = "123456";
     private final static String WRONG_PASSWORD = "1234";
-    LoginPage loginpage;
-    RegistrationPage regpage;
+    public static String accessToken = "";
+    LoginPage loginPage;
+    RegistrationPage registrationPage;
 
     @Before
-    public void setWebDriver() {
-        driver = createDriver("chrome");
-        loginpage = new LoginPage(driver);
-        regpage = new RegistrationPage(driver);
-        driver.manage().window().maximize();
-        driver.get(URL);
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+    public void initializePages() {
+        driver.get(baseUrl + "register");
+        loginPage = new LoginPage(driver);
+        registrationPage = new RegistrationPage(driver);
     }
 
     @Test
     @DisplayName("Регистрация нового пользователя")
     public void createNewRegistration() {
-        regpage.checkTitle();
-        regpage.registerUser(USER_NAME, EMAIL, PASSWORD);
-        loginpage.checkTitle();
+        registrationPage.checkTitle();
+        registrationPage.registerUser(USER_NAME, EMAIL, PASSWORD);
+        loginPage.checkTitle();
+        accessToken = getAccessToken(EMAIL, PASSWORD);
     }
 
     @Test
     @DisplayName("Регистрация пользователя с некорректным паролем")
     public void checkWrongPassword() {
-        regpage.checkTitle();
-        regpage.registerUser(USER_NAME, EMAIL, WRONG_PASSWORD);
-        regpage.checkErrorMessage();
+        registrationPage.checkTitle();
+        registrationPage.registerUser(USER_NAME, EMAIL, WRONG_PASSWORD);
+        registrationPage.checkErrorMessage();
     }
 
     @After
-    public void teardown() {
-        driver.quit();
-    }
-
-    public static WebDriver createDriver(String browser) {
-        WebDriver driver = null;
-        if (browser.equalsIgnoreCase("chrome")) {
-            System.setProperty("webdriver.chrome.driver", "C:\\WebDriver\\bin\\chromedriver-win64\\chromedriver.exe");
-
-            // Создаем экземпляр ChromeDriver
-            driver = new ChromeDriver();
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--disable-search-engine-choice-screen");
-            driver = new ChromeDriver(options);
-        } else if (browser.equalsIgnoreCase("firefox")) {
-            // Создаем экземпляр FirefoxDriver
-            driver = new FirefoxDriver();
-        } else {
-            System.out.println("Неподдерживаемый браузер: " + browser);
-        }
-        return driver;
+    public void clear() {
+        deleteUser(accessToken);
+        accessToken = "";
     }
 }

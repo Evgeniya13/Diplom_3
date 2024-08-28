@@ -11,44 +11,32 @@ import pageobject.*;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4ClassRunner.class)
-public class ConstructorNavigationTest {
-    private final static String URL = "https://stellarburgers.nomoreparties.site/";
-    private WebDriver driver;
-    ConstructorPage constrpage;
-
-    @Before
-    public void setWebDriver() {
-        driver = UserRegistrationTest.createDriver("chrome");
-        constrpage = new ConstructorPage(driver);
-        driver.manage().window().maximize();
-        driver.get(URL);
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-    }
+public class ConstructorNavigationTest extends BaseTest{
+    ConstructorPage constructorPage;
 
     @Test
     @DisplayName("Переход к разделу «Булки»")
     public void navigateToBuns() {
-        constrpage.clickSaucesTab();
-        constrpage.clickBunsTab();
-        Assert.assertTrue(constrpage.checkBunsTabIsSelected());
+        constructorPage = new ConstructorPage(driver);
+        constructorPage.clickSaucesTab();
+        constructorPage.clickBunsTab();
+        Assert.assertTrue(constructorPage.checkBunsTabIsSelected());
     }
 
     @Test
     @DisplayName("Переход к разделу «Соусы»")
     public void navigateToSauces() {
-        constrpage.clickSaucesTab();
-        Assert.assertTrue(constrpage.checkSaucesTabIsSelected());
+        constructorPage = new ConstructorPage(driver);
+        constructorPage.clickSaucesTab();
+        Assert.assertTrue(constructorPage.checkSaucesTabIsSelected());
     }
 
     @Test
     @DisplayName("Переход к разделу «Начинки»")
     public void navigateToToppings() {
-        constrpage.clickToppingsTab();
-        Assert.assertTrue(constrpage.checkToppingsTabIsSelected());
+        constructorPage = new ConstructorPage(driver);
+        constructorPage.clickToppingsTab();
+        Assert.assertTrue(constructorPage.checkToppingsTabIsSelected());
     }
 
-    @After
-    public void teardown() {
-        driver.quit();
-    }
 }
